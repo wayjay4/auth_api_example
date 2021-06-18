@@ -11,12 +11,15 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        // validate the request fields
-        $fields = $request->validate([
+        // set validation rules for request fields
+        $rules = [
             'name' => 'required|string',
             'email' => 'required|string|unique:users,email',
             'password' => 'required|string|confirmed',
-        ]);
+        ];
+
+        // validate and get the request fields
+        $fields = $request->validate($rules);
 
         // create the new user
         $user = User::create([
@@ -28,51 +31,64 @@ class AuthController extends Controller
         // create user api token
         $token = $user->createToken('myapptoken')->plainTextToken;
 
-        // create the response
+        // create the response w/user and token data
         $response = [
             'user' => $user,
             'token' => $token,
         ];
 
+        // send the response
         return response($response, 201);
     }
 
     public function login(Request $request)
     {
-        // validate the request fields
-        $fields = $request->validate([
+        // set the validation rules for request fields
+        $rules = [
             'email' => 'required|string',
             'password' => 'required|string',
-        ]);
+        ];
 
-        // check email
+        // validate the request fields
+        $fields = $request->validate($rules);
+
+        // check email exists
         $user = User::where('email', $fields['email'])->first();
 
         // verify password
         if(!$user || !Hash::check($fields['password'], $user->password)){
-            return response([
+            // set error response
+            $e_response = [
                 'message' => 'Bad Credentials.'
-            ], 401);
+            ];
+
+            // return error response
+            return response($e_response, 401);
         }
 
         // create user api token
         $token = $user->createToken('myapptoken')->plainTextToken;
 
-        // create the response
+        // create the response w/user and token data
         $response = [
             'user' => $user,
             'token' => $token,
         ];
 
+        // return success response
         return response($response, 201);
     }
 
     public function logout(Request $request)
-    {
+    {   
+        // delete all user's tokens
         auth()->user()->tokens()->delete();
 
-        return [
-            'message' => 'Logged out.'
+        // create response
+        $response = [
+            'message' => 'Logged out'
         ];
+
+        return response($response, 201);
     }
 }
