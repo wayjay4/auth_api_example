@@ -20,12 +20,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// auth route
+// auth register/login 'public' routes
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
+// auth logout 'private' route
 Route::post('/logout', [AuthController::class, 'logout'])
 ->middleware('auth:sanctum');
 
-// product route
+// product 'private' route
 Route::resource('/products', ProductController::class)
 ->middleware('auth:sanctum');
