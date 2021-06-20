@@ -4,7 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AuthapiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // auth register/login 'public' routes
-Route::resource('/register', AuthapiController::class);
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // auth logout 'private' route
