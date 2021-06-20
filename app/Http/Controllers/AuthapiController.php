@@ -16,7 +16,34 @@ class AuthapiController extends Controller
      */
     public function index()
     {
-        //
+        // set validation rules for request fields
+        $rules = [
+            'name' => 'required|string',
+            'email' => 'required|string|unique:users,email',
+            'password' => 'required|string|confirmed',
+        ];
+
+        // validate and get the request fields
+        $fields = $request->validate($rules);
+
+        // create the new user
+        $user = User::create([
+            'name' => $fields['name'],
+            'email' => $fields['email'],
+            'password' => bcrypt($fields['password']),
+        ]);
+
+        // create user api token
+        $token = $user->createToken('myapptoken')->plainTextToken;
+
+        // create the response w/user and token data
+        $response = [
+            'user' => $user,
+            'token' => $token,
+        ];
+
+        // send the response
+        return response($response, 201);
     }
 
     /**
